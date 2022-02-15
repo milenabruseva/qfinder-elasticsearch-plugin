@@ -1,0 +1,35 @@
+buildscript {
+    repositories {
+        mavenLocal()
+        mavenCentral()
+    }
+
+    dependencies {
+        classpath "org.elasticsearch.gradle:build-tools:7.16.3"
+    }
+}
+
+apply plugin: 'java'
+
+compileJava {
+    sourceCompatibility = JavaVersion.VERSION_17
+    targetCompatibility = JavaVersion.VERSION_17
+}
+
+apply plugin: 'elasticsearch.esplugin'
+
+repositories {
+    mavenCentral()
+    mavenLocal()
+}
+
+group = "com.demoplugins"
+version = "0.0.1"
+
+esplugin {
+    name 'qbm25'
+    description 'A scripted score module for QBM25'
+    classname 'com.demoplugins.qbm25.QBM25Plugin'
+    licenseFile rootProject.file('LICENSE.txt')
+    noticeFile rootProject.file('NOTICE.txt')
+}
