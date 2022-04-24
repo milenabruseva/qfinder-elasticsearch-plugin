@@ -20,6 +20,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import java.lang.Math;
+
 public class QBM25Plugin extends Plugin implements ScriptPlugin {
 
     @Override
@@ -168,19 +170,16 @@ public class QBM25Plugin extends Plugin implements ScriptPlugin {
                         int numberOfUnits = valuesIntersection.size();
                         double dist = 0.0;
                         double result = 0.0;
-
-                        switch(handler) {
-                            case "=":
-                                for (double number : valuesIntersection) {
+                        switch (handler) {
+                            case "=" -> {
+                                for (Double number : valuesIntersection) {
                                     if (number != 0 && amount != 0) {
-                                        double difference = amount - number;
-                                        dist += ((difference <= 0) ? 1 : 0) * (amount / number) + ((difference > 0) ? 1 : 0) * (number / amount);
+                                        dist += Math.exp(-Math.abs(amount - number));
                                     }
                                 }
                                 result = normalized_score + weight * (dist / numberOfUnits);
-                                break;
-
-                            case ">":
+                            }
+                            case ">" -> {
                                 for (double number : valuesIntersection) {
                                     if (number != 0) {
                                         double difference = number - amount;
@@ -188,36 +187,24 @@ public class QBM25Plugin extends Plugin implements ScriptPlugin {
                                     }
                                 }
                                 result = normalized_score + weight * (dist / numberOfUnits);
-                                break;
-
-                            case "<":
+                            }
+                            case "<" -> {
                                 for (double number : valuesIntersection) {
                                     if (amount != 0) {
                                         double difference = amount - number;
                                         dist += ((difference > 0) ? 1 : 0) * (number / amount);
                                     }
                                 }
-                                result =  normalized_score + weight * (dist / numberOfUnits);
-                                break;
-
-                            case "<<":
-                                double amount_bigger = amount;
-                                double amount_smaller = amount2;
-                                for (double number : valuesIntersection) {
-                                    double difference_smaller = amount_smaller - number;
-                                    double difference_bigger = number - amount_bigger;
-                                    if (number != 0) {
-                                        dist += ((difference_bigger > 0 && difference_smaller > 0) ? 1 : 0) * (amount_bigger / number);
-                                    }
-                                    if (amount_smaller != 0){
-                                        dist += ((difference_bigger > 0 && difference_smaller > 0) ? 1 : 0) * (number / amount_smaller);
-                                    }
+                                result = normalized_score + weight * (dist / numberOfUnits);
+                            }
+                            case "<<" -> {
+                                for (Double number : valuesIntersection) {
+                                    double amount_avg = (amount + amount2) / 2.0;
+                                    dist += Math.exp(-Math.abs(number - amount_avg));
                                 }
                                 result = normalized_score + weight * (dist / numberOfUnits);
-                                break;
-                            default:
-                                result = normalized_score;
-                                break;
+                            }
+                            default -> result = normalized_score;
                         }
                         if (result < 0){
                             result = 0.0;
